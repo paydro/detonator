@@ -1,5 +1,4 @@
-require 'test/unit'
-require 'detonator'
+require File.join(File.dirname(__FILE__), 'test_helper')
 
 class Camera < Detonator::MongoModel
   key :model, String

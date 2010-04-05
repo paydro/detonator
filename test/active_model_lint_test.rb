@@ -1,5 +1,4 @@
-require 'test/unit'
-require 'detonator'
+require File.join(File.dirname(__FILE__), 'test_helper')
 
 class ActiveModelComplianceTest < Test::Unit::TestCase
   include ActiveModel::Lint::Tests

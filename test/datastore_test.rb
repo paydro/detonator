@@ -1,10 +1,4 @@
-require 'minitest/unit'
-require 'minitest/spec'
-require 'rubygems'
-require 'ansi'
-
-require 'test/unit'
-require 'detonator'
+require File.join(File.dirname(__FILE__), 'test_helper')
 
 class Camera < Detonator::MongoModel
   self.connection = Mongo::Connection.new.db("detonator_test")
@@ -16,162 +10,6 @@ class Camera < Detonator::MongoModel
   key :last_used_on, Date
 end
 
-
-class MiniTest::Unit
-  include ANSI::Code
-
-  PADDING_SIZE = 4
-
-  def run(args = [])
-    @verbose = true
-
-    filter = if args.first =~ /^(-n|--name)$/ then
-               args.shift
-               arg = args.shift
-               arg =~ /\/(.*)\// ? Regexp.new($1) : arg
-             else
-               /./ # anything - ^test_ already filtered by #tests
-             end
-
-    @@out.puts "Loaded suite #{$0.sub(/\.rb$/, '')}\nStarted"
-
-    start = Time.now
-    run_test_suites filter
-
-    @@out.puts
-    @@out.puts "Finished in #{'%.6f' % (Time.now - start)} seconds."
-
-    @@out.puts
-
-    @@out.print "%d tests, " % test_count
-    @@out.print "%d assertions, " % assertion_count
-    @@out.print red { "%d failures, " % failures }
-    @@out.print yellow { "%d errors, " % errors }
-    @@out.puts cyan { "%d skips" % skips}
-
-    return failures + errors if @test_count > 0 # or return nil...
-  end
-
-  # Overwrite #run_test_suites so that it prints out reports
-  # as errors are generated.
-  def run_test_suites(filter = /./)
-    @test_count, @assertion_count = 0, 0
-    old_sync, @@out.sync = @@out.sync, true if @@out.respond_to? :sync=
-    TestCase.test_suites.each do |suite|
-      test_cases = suite.test_methods.grep(filter)
-      if test_cases.size > 0
-        @@out.print "\n#{suite}:\n"
-      end
-
-      test_cases.each do |test|
-        inst = suite.new test
-        inst._assertions = 0
-
-        t = Time.now
-
-        @broken = nil
-
-        @@out.print(case inst.run(self)
-                    when :pass
-                      @broken = false
-                      green { pad_with_size "PASS" }
-                    when :error
-                      @broken = true
-                      yellow { pad_with_size "ERROR" }
-                    when :fail
-                      @broken = true
-                      red { pad_with_size "FAIL" }
-                    when :skip
-                      @broken = false
-                      cyan { pad_with_size "SKIP" }
-                    end)
-
-
-        @@out.print " #{test}"
-        @@out.print " (%.2fs) " % (Time.now - t)
-
-        if @broken
-          @@out.puts
-
-          report = @report.last
-          @@out.puts pad(report[:message], 10)
-          trace = MiniTest::filter_backtrace(report[:exception].backtrace).first
-          @@out.print pad(trace, 10)
-
-          @@out.puts
-        end
-
-        @@out.puts
-        @test_count += 1
-        @assertion_count += inst._assertions
-      end
-    end
-    @@out.sync = old_sync if @@out.respond_to? :sync=
-    [@test_count, @assertion_count]
-  end
-
-  def pad(str, size=PADDING_SIZE)
-    " " * size + str
-  end
-
-  def pad_with_size(str)
-    pad("%5s" % str)
-  end
-
-  # Overwrite #puke method so that is stores a hash
-  # with :message and :exception keys.
-  def puke(klass, meth, e)
-    result = nil
-    msg = case e
-        when MiniTest::Skip
-          @skips += 1
-          result = :skip
-          e.message
-        when MiniTest::Assertion
-          @failures += 1
-          result = :fail
-          e.message
-        else
-          @errors += 1
-          result = :error
-          "#{e.class}: #{e.message}\n"
-        end
-
-    @report << {:message => msg, :exception => e}
-    result
-  end
-
-
-  class TestCase
-    # Overwrite #run method so that is uses symbols
-    # as return values rather than characters.
-    def run(runner)
-      result = :pass
-      begin
-        @passed = nil
-        self.setup
-        self.__send__ self.name
-        @passed = true
-      rescue Exception => e
-        @passed = false
-        result = runner.puke(self.class, self.name, e)
-      ensure
-        begin
-          self.teardown
-        rescue Exception => e
-          result = runner.puke(self.class, self.name, e)
-        end
-      end
-      result
-    end
-  end
-end
-
-class DetonatorTestCase < Test::Unit::TestCase
-  def db
-    @_db ||= Mongo::Connection.new.db("detonator_test")
-  end
-end
 
 class SaveModelTest < DetonatorTestCase
 
@@ -190,12 +28,6 @@ class SaveModelTest < DetonatorTestCase
     assert_equal size_before + 1, @collection.count
     record = @collection.find_one(camera.id)
     assert_equal "Test", record["model"]
-
-    fail
-  end
-
-  def test_skip
-    skip
   end
 
   def test_save_casts_date_to_time_to_work_with_mongodb
@@ -204,7 +36,6 @@ class SaveModelTest < DetonatorTestCase
 
     doc = @collection.find({:_id => camera.id})
     assert_not_nil doc
-    assert 1 == 2, "Assertion Message here!"
   end
 
   def test_id_set_on_save
@@ -212,17 +43,7 @@ class SaveModelTest < DetonatorTestCase
 
     assert camera.save
     assert_not_nil camera.id
-    flunk
   end
-
-  def test_sawef
-    assert_not_nil nil
-  end
-
-  def test_heef
-    raise "This is so broken"
-  end
-
 end
 
 class FinderTest < DetonatorTestCase
@@ -407,3 +228,4 @@ class DestroyTest < DetonatorTestCase
     assert @camera.destroyed?
   end
 end
+

@@ -29,11 +29,11 @@ module Detonator
       end
 
       def collection=(coll)
-        @@collection = coll
+        @collection = coll
       end
 
       def collection
-        @@collection ||= connection["#{self.to_s.tableize}"]
+        @collection ||= connection["#{self.to_s.tableize}"]
       end
 
       def first(selector = {}, options = {})
