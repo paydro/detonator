@@ -79,11 +79,18 @@ module Detonator
           object
         end
 
+        # Key creation methods
+
         def key(name, type)
           create_reader(name, type)
           create_writer(name, type)
         end
 
+        def timestamps
+          %w[created_at updated_at].each do |name|
+            key name, Time
+          end
+        end
         def create_reader(name, type)
           class_eval <<-RUBY, __FILE__, __LINE__
             def #{name}

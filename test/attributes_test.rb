@@ -6,9 +6,11 @@ class Camera < Detonator::Model
   key :cost, Float
   key :bought_at, Time
   key :last_used_on, Date
+
+  timestamps
 end
 
-class NewModelAttributeReadersTest < Test::Unit::TestCase
+class NewModelAttributeReadersTest < DetonatorTestCase
 
   def test_attr_string_readers
     camera = Camera.new(:model => "Canon Rebel XSi")
@@ -47,7 +49,7 @@ class NewModelAttributeReadersTest < Test::Unit::TestCase
 end
 
 
-class ModelAttributeAssignmentTest < Test::Unit::TestCase
+class ModelAttributeAssignmentTest < DetonatorTestCase
 
   def setup
     @camera = Camera.new
@@ -110,10 +112,27 @@ class ModelAttributeAssignmentTest < Test::Unit::TestCase
 
 end
 
-class DetonatorMongoModelAttributesTest < Test::Unit::TestCase
+class DetonatorMongoModelAttributesTest < DetonatorTestCase
   def test_attributes_asigned_via_symbols_returns_keys_as_strings
     camera = Camera.new(:model => "Canon 5D", :cost => 19.99)
     attrs = {"id" => nil, "model" => "Canon 5D", "cost" => 19.99}
     assert_equal attrs, camera.attributes
+  end
+end
+
+class TimestampTest < DetonatorTestCase
+  def test_created_at_exists
+    camera = Camera.new(:model => "Canon 5D")
+    assert_equal nil, camera.created_at
+  end
+
+  def test_created_at_key_exists
+    camera = Camera.new(:model => "Canon 5D")
+    assert_equal nil, camera.created_at
+  end
+
+  def test_updated_at_key_exists
+    camera = Camera.new(:model => "Canon 5D")
+    assert_equal nil, camera.updated_at
   end
 end
