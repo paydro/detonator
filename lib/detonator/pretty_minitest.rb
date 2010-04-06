@@ -9,6 +9,7 @@ class MiniTest::Unit
   include ANSI::Code
 
   PADDING_SIZE = 4
+  ERROR_PADDING = 10
 
   def run(args = [])
     @verbose = true
@@ -82,9 +83,9 @@ class MiniTest::Unit
           @@out.puts
 
           report = @report.last
-          @@out.puts pad(report[:message], 10)
+          @@out.puts pad_newlines(report[:message])
           trace = MiniTest::filter_backtrace(report[:exception].backtrace).first
-          @@out.print pad(trace, 10)
+          @@out.print pad(trace, ERROR_PADDING)
 
           @@out.puts
         end
@@ -106,6 +107,9 @@ class MiniTest::Unit
     pad("%5s" % str)
   end
 
+  def pad_newlines(str)
+    str.split("\n").collect {|line| pad(line, ERROR_PADDING)}.join("\n")
+  end
   # Overwrite #puke method so that is stores a hash
   # with :message and :exception keys.
   def puke(klass, meth, e)
