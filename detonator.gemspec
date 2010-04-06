@@ -2,7 +2,7 @@
 lib = File.expand_path('../lib/', __FILE__)
 $:.unshift lib unless $:.include?(lib)
 
-require 'detonator'
+require 'detonator/version'
 
 Gem::Specification.new do |s|
   s.name        = "detonator"
@@ -15,7 +15,7 @@ Gem::Specification.new do |s|
   s.description = "Simple ORM built with MongoDB and ActiveModel. "
 
   s.required_rubygems_version = ">= 1.3.6"
-  # s.rubyforge_project         = "bundler"
+  # s.rubyforge_project         = ""
 
   s.add_development_dependency "activemodel"
   s.add_development_dependency "mongo"

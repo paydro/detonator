@@ -13,11 +13,13 @@ end
 namespace :gem do
   desc "Install gem locally"
   task :install => [:build] do
-    `gem install detonator.gem`
+    require 'lib/detonator/version'
+    puts `gem install detonator-#{Detonator::VERSION}.gem`
   end
 
   desc "Build gemspec"
   task :build do
-     `gem build detonator.gemspec`
+    require 'lib/detonator/version'
+    puts `gem build detonator.gemspec`
   end
 end
