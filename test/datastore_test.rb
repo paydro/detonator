@@ -1,6 +1,6 @@
 require File.join(File.dirname(__FILE__), 'test_helper')
 
-class Camera < Detonator::MongoModel
+class Camera < Detonator::Model
   self.connection = Mongo::Connection.new.db("detonator_test")
 
   key :model, String

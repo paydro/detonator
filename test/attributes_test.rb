@@ -1,6 +1,6 @@
 require File.join(File.dirname(__FILE__), 'test_helper')
 
-class Camera < Detonator::MongoModel
+class Camera < Detonator::Model
   key :model, String
   key :num, Integer
   key :cost, Float

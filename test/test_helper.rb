@@ -1,4 +1,4 @@
-require 'pretty_minitest'
+require 'detonator/pretty_minitest'
 require 'test/unit'
 require 'detonator'
 

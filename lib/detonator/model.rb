@@ -6,7 +6,7 @@ require 'time'
 require 'date'
 
 module Detonator
-  class MongoModel
+  class Model
     extend ActiveModel::Naming
     extend ActiveModel::Callbacks
     include ActiveModel::Serialization
