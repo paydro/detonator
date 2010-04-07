@@ -1,6 +1,7 @@
 module Detonator
 
-  # Modeled after the mongo-ruby-driver's cursor object.
+  # Modeled after the mongo-ruby-driver's cursor object and
+  # ActiveRecord's Relation.
   class QueryBuilder
 
     def initialize(klass)
