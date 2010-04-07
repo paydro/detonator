@@ -16,6 +16,15 @@ class QueryBuilderTest < DetonatorTestCase
     @collection.remove
   end
 
+  def test_first_returns_model
+    @relation.sort(:num)
+    assert_equal @canon, @relation.first
+  end
+
+  def test_all_returns_array
+    assert Array === @relation.all
+  end
+
   def test_selector
     assert_relation @relation.selector(:model => "Canon", :num => 1)
     assert_equal [@canon], @relation.all
@@ -66,8 +75,21 @@ class QueryBuilderTest < DetonatorTestCase
     assert_equal [@canon], @relation.all
   end
 
-  def test_adding_criteria_does_not_query_db
+  def test_delayed_db_query
+    @relation.selector(:model => "Canon")
+    assert !@relation.loaded?
 
+    @relation.limit(1)
+    assert !@relation.loaded?
+
+    @relation.all
+    assert @relation.loaded?
+  end
+
+  def test_size_loads_data_from_db
+    assert !@relation.loaded?
+    @relation.size
+    assert @relation.loaded?
   end
 
   def assert_relation(obj)
