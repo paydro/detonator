@@ -6,6 +6,9 @@ require 'time'
 require 'date'
 
 module Detonator
+  class Error < StandardError; end
+  class RecordNotFound < Error; end
+
   class Model
     extend ActiveModel::Naming
     extend ActiveModel::Callbacks
@@ -36,42 +39,43 @@ module Detonator
         @collection ||= connection["#{self.to_s.tableize}"]
       end
 
-      def first(selector = {}, options = {})
-        find_one(selector, options)
+      def first(options = {})
+        Relation.new(self).first(options)
       end
 
-      def all(selector = {}, options = {})
-        find(selector, options)
+      def all(options = {})
+        Relation.new(self).all(options)
       end
 
-      def find(id_or_selector = {}, options = {})
-        if id_or_selector.is_a?(String)
-          find(Mongo::ObjectID.from_string(id_or_selector))
-        elsif id_or_selector.is_a?(Mongo::ObjectID)
-          find_one(id_or_selector)
+      def find(options = {})
+        if String === options
+          options = Mongo::ObjectID.from_string(options)
+        end
+
+        if Mongo::ObjectID === options
+          record = first({:selector => {"_id" => options}})
+          if record.nil?
+            raise RecordNotFound.new("Record not found with object id #{options}")
+          end
+          record
         else
-          find_many(id_or_selector, options)
+          Relation.new(self).all(options)
         end
       end
 
+      def raw_find(options = {})
+        selector = options.delete(:selector) || {}
+        records = collection.find(selector, options)
+
+        returning([]) do |models|
+          records.each do |record|
+            models << init_from_record(record)
+          end
+          records.close
+        end
+      end
 
       protected
-
-        def find_one(id_or_selector = {}, options = {})
-          record = collection.find_one(id_or_selector, options)
-          raise "No Record Found" if record.nil?
-          init_from_record(record)
-        end
-
-        def find_many(selector = {}, options = {})
-          records = collection.find(selector, options)
-
-          returning([]) do |models|
-            records.each do |record|
-              models << init_from_record(record)
-            end
-          end
-        end
 
         def init_from_record(record)
           object = self.allocate
