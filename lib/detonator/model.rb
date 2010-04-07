@@ -7,7 +7,7 @@ require 'date'
 
 module Detonator
   class Error < StandardError; end
-  class RecordNotFound < Error; end
+  class DocumentNotFound < Error; end
 
   class Model
     extend ActiveModel::Naming
@@ -39,6 +39,12 @@ module Detonator
         @collection ||= connection["#{self.to_s.tableize}"]
       end
 
+      def create(attributes)
+        doc = new(attributes)
+        doc.save
+        doc
+      end
+
       def first(options = {})
         Relation.new(self).first(options)
       end
@@ -55,7 +61,7 @@ module Detonator
         if Mongo::ObjectID === options
           record = first({:selector => {"_id" => options}})
           if record.nil?
-            raise RecordNotFound.new("Record not found with object id #{options}")
+            raise DocumentNotFound.new("Record not found with object id #{options}")
           end
           record
         else
@@ -135,6 +141,10 @@ module Detonator
       id.to_s
     end
 
+    def ==(model)
+      id == model.id
+    end
+
     def initialize(attrs = {})
       @new_record = true
       assign_attributes(attrs)
@@ -150,11 +160,13 @@ module Detonator
     end
 
     def id
-      @id
+      @attributes["id"]
+      # @id
     end
 
     def id=(id)
-      @id = id
+      @attributes["id"] = id
+      # @id = id
     end
 
     def save
@@ -168,7 +180,8 @@ module Detonator
           end
         end
 
-        document["_id"] = self.id unless new_record?
+        _id = document.delete("id")
+        document["_id"] = _id unless new_record?
 
         self.id = collection.save(document)
         @new_record = false

@@ -9,9 +9,12 @@ rescue LoadError
   exit 1
 end
 
-require 'detonator/pretty_minitest'
+if ENV["pretty"] == "true"
+  require 'detonator/pretty_minitest'
+end
 require 'test/unit'
 require 'detonator'
+require 'pp'
 
 # Add fixtures directory into load path
 $:.unshift(File.join(File.dirname(__FILE__), "fixtures"))

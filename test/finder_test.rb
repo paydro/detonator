@@ -95,6 +95,12 @@ class FinderTest < DetonatorTestCase
     assert_equal false, camera.new_record?
   end
 
+  def test_find_sets_id
+    record_id = @collection.insert({:model => "Canon 70D"})
+    camera = Camera.find(:selector => {:model => "Canon 70D"}).first
+    assert_equal record_id, camera.id
+  end
+
   def test_raw_find
     @collection.remove
     5.times {|i| @collection.insert({:model => "Canon #{i}"}) }
@@ -107,7 +113,7 @@ class FinderTest < DetonatorTestCase
   def test_find_with_nonexisting_object_id_raises_record_not_found
     id = @collection.insert({:model => "Delete me"})
     @collection.remove({"_id" => id})
-    assert_raise Detonator::RecordNotFound do
+    assert_raise Detonator::DocumentNotFound do
       Camera.find(id)
     end
   end

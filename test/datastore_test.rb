@@ -35,6 +35,21 @@ class SaveModelTest < DetonatorTestCase
   end
 end
 
+class CreateTest < DetonatorTestCase
+  def setup
+    @collection = Camera.collection
+  end
+
+  def teardown
+    @collection.remove
+  end
+
+  def test_create_stores_record
+    Camera.create({:model => "Canon"})
+    assert_equal "Canon", @collection.find_one()["model"]
+  end
+end
+
 class UpdateTest < DetonatorTestCase
 
   def setup

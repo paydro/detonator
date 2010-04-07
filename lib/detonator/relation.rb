@@ -44,21 +44,14 @@ module Detonator
       self
     end
 
-    def fields(fields)
-      @fields ||= []
-      @fields.push(*fields).uniq!
-
-      self
-    end
-
     def limit(limit)
-      @limit = limit
+      @limit = limit.to_i
 
       self
     end
 
-    def sort(sort)
-      @sort = sort
+    def sort(*sorts)
+      @sort = normalize_sorts(sorts)
 
       self
     end
@@ -68,17 +61,27 @@ module Detonator
       def finder_options
         {
           :selector => @selector,
-          :fields => @fields,
           :skip => @skip,
           :limit => @limit,
           :sort => @sort,
         }
       end
 
-      # TODO: Check option values are correct type
+      def normalize_sorts(sorts)
+        returning([]) do |normalized_sorts|
+          sorts.each do |sort|
+            case sort
+            when Array
+              normalized_sorts << sort
+            when Symbol, String
+              normalized_sorts << [sort, :asc]
+            end
+          end
+        end
+      end
+
       def init_query_objects(options = {})
         @selector = options[:selector] || {}
-        @fields   = options[:fields]
         @skip     = options[:skip]
         @limit    = options[:limit]
         @sort     = options[:sort]
@@ -87,7 +90,6 @@ module Detonator
       def merge_query_objects(options = {})
         return if options.blank?
         selector(options[:selector]) if options[:selector]
-        fields(options[:fields]) if options[:fields]
         skip(options[:skip]) if options[:skip]
         limit(options[:limit]) if options[:limit]
         sort(options[:sort]) if options[:sort]
