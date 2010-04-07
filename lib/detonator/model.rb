@@ -90,7 +90,10 @@ module Detonator
           %w[created_at updated_at].each do |name|
             key name, Time
           end
+
+          before_save :_update_timestamps
         end
+
         def create_reader(name, type)
           class_eval <<-RUBY, __FILE__, __LINE__
             def #{name}
@@ -151,21 +154,23 @@ module Detonator
     end
 
     def save
-      document = self.attributes.dup
-      document.each do |key, value|
-        # Convert Date objects into Time objects since MongoDB cannot
-        # use the Date object.
-        if Date === value
-          document[key] = value.to_time
+      _run_save_callbacks do
+        document = self.attributes.dup
+        document.each do |key, value|
+          # Convert Date objects into Time objects since MongoDB cannot
+          # use the Date object.
+          if Date === value
+            document[key] = value.to_time
+          end
         end
+
+        document["_id"] = self.id unless new_record?
+
+        self.id = collection.save(document)
+        @new_record = false
+
+        true
       end
-
-      document["_id"] = self.id unless new_record?
-
-      self.id = collection.save(document)
-      @new_record = false
-
-      true
     end
 
     def update_attributes(new_attributes)
@@ -220,6 +225,14 @@ module Detonator
         end
       end
 
+      def _update_timestamps
+        time = Time.now
+        if new_record? && self.created_at.blank?
+          self.created_at = time
+        end
 
-  end # End MongoModel
+        self.updated_at = time
+      end
+
+  end # End Model
 end

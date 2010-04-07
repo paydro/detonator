@@ -1,15 +1,5 @@
 require File.join(File.dirname(__FILE__), 'test_helper')
-
-class Camera < Detonator::Model
-  key :model, String
-  key :num, Integer
-  key :cost, Float
-  key :bought_at, Time
-  key :last_used_on, Date
-
-  timestamps
-end
-
+require 'camera'
 class NewModelAttributeReadersTest < DetonatorTestCase
 
   def test_attr_string_readers
@@ -120,19 +110,4 @@ class DetonatorMongoModelAttributesTest < DetonatorTestCase
   end
 end
 
-class TimestampTest < DetonatorTestCase
-  def test_created_at_exists
-    camera = Camera.new(:model => "Canon 5D")
-    assert_equal nil, camera.created_at
-  end
 
-  def test_created_at_key_exists
-    camera = Camera.new(:model => "Canon 5D")
-    assert_equal nil, camera.created_at
-  end
-
-  def test_updated_at_key_exists
-    camera = Camera.new(:model => "Canon 5D")
-    assert_equal nil, camera.updated_at
-  end
-end

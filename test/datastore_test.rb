@@ -1,16 +1,5 @@
 require File.join(File.dirname(__FILE__), 'test_helper')
-
-class Camera < Detonator::Model
-  self.connection = Mongo::Connection.new.db("detonator_test")
-
-  key :model, String
-  key :num, Integer
-  key :cost, Float
-  key :bought_at, Time
-  key :last_used_on, Date
-end
-
-
+require 'camera'
 class SaveModelTest < DetonatorTestCase
 
   def setup
