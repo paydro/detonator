@@ -1,9 +1,9 @@
 require File.join(File.dirname(__FILE__), 'test_helper')
 require 'camera'
 
-class RelationTest < DetonatorTestCase
+class QueryBuilderTest < DetonatorTestCase
   def setup
-    @relation = Detonator::Relation.new(Camera)
+    @relation = Detonator::QueryBuilder.new(Camera)
     @collection = Camera.collection
 
     @canon = Camera.create({:model => "Canon", :num => 1, :cost => 20.00})
@@ -71,7 +71,7 @@ class RelationTest < DetonatorTestCase
   end
 
   def assert_relation(obj)
-    assert Detonator::Relation === obj, "Expected object to be Detonator::Relation, instead was #{obj.class}"
+    assert Detonator::QueryBuilder === obj, "Expected object to be Detonator::QueryBuilder, instead was #{obj.class}"
   end
 end
 

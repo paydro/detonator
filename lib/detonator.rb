@@ -1,3 +1,3 @@
-require "detonator/relation"
+require "detonator/query_builder"
 require "detonator/model"
 

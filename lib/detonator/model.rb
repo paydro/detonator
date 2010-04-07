@@ -46,11 +46,11 @@ module Detonator
       end
 
       def first(options = {})
-        Relation.new(self).first(options)
+        QueryBuilder.new(self).first(options)
       end
 
       def all(options = {})
-        Relation.new(self).all(options)
+        QueryBuilder.new(self).all(options)
       end
 
       def find(options = {})
@@ -65,7 +65,7 @@ module Detonator
           end
           record
         else
-          Relation.new(self).all(options)
+          QueryBuilder.new(self).all(options)
         end
       end
 
