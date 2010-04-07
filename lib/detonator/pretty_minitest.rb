@@ -12,7 +12,7 @@ class MiniTest::Unit
   ERROR_PADDING = 10
 
   def run(args = [])
-    @verbose = true
+    @verbose = args.delete("-v")
 
     filter = if args.first =~ /^(-n|--name)$/ then
                args.shift
@@ -84,8 +84,13 @@ class MiniTest::Unit
 
           report = @report.last
           @@out.puts pad_newlines(report[:message])
-          trace = MiniTest::filter_backtrace(report[:exception].backtrace).first
-          @@out.print pad(trace, ERROR_PADDING)
+
+          if @verbose
+            trace = pad_newlines(report[:exception].backtrace.join("\n"))
+          else
+            trace = pad(MiniTest::filter_backtrace(report[:exception].backtrace).first, ERROR_PADDING)
+          end
+          @@out.print trace
 
           @@out.puts
         end
