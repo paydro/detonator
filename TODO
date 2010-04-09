@@ -1,0 +1,8 @@
+TODO
+====
+
+* attr_protected-like methods to disallow mass-assignment security holes.
+
+* Logging
+
+

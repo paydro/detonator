@@ -13,6 +13,7 @@ module Detonator
         end
       end
 
+      # Cast a given value to the specified type if value is not that type.
       def cast_value(value, type)
         return value if type == value.class
         case
@@ -27,7 +28,7 @@ module Detonator
         when type == Time
           value.to_time
         else
-          value
+          type.new(value)
         end
       end
 

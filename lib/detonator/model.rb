@@ -132,11 +132,13 @@ module Detonator
     def save
       _run_save_callbacks do
         document = self.attributes.dup
-        document.each do |key, value|
+        attributes.each do |key, value|
           # Convert Date objects into Time objects since MongoDB cannot
           # use the Date object.
           if Date === value
             document[key] = value.to_time
+          elsif !value.nil? && !value.is_a?(Mongo::ObjectID) && not_primitive?(value)
+            document[key] = value.to_doc
           end
         end
 
@@ -148,6 +150,10 @@ module Detonator
 
         true
       end
+    end
+
+    def not_primitive?(value)
+      !(value.is_a?(String) || value.is_a?(Integer) || value.is_a?(Float) || value.is_a?(Time))
     end
 
     def update_attributes(new_attributes)

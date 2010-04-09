@@ -110,4 +110,69 @@ class DetonatorMongoModelAttributesTest < DetonatorTestCase
   end
 end
 
+class AttributesWithUserCreatedTypesTest < DetonatorTestCase
 
+  class NewType
+    class << self
+      attr_accessor :init_with
+    end
+
+    attr_accessor :var
+
+    def initialize(var)
+      @var = var
+      self.class.init_with = var
+    end
+
+    def ==(other)
+      @var == other.var
+    end
+
+    def to_doc
+      {:var => @var}
+    end
+  end
+
+  class ModelWithUserType < Detonator::Model
+    key :test, NewType
+  end
+
+  def setup
+    @col = ModelWithUserType.collection
+  end
+
+  def teardown
+    @col.remove
+  end
+
+  def test_assignment_works
+    model = ModelWithUserType.new
+    model.test = "stuff"
+
+    assert_equal "stuff", NewType.init_with
+  end
+
+  def test_assignment_creates_object
+    model = ModelWithUserType.new
+    model.test = "stuff"
+
+    assert_kind_of NewType, model.test
+  end
+
+  def test_assignment_with_object
+    model = ModelWithUserType.new
+    test_value = NewType.new("stuff")
+    model.test = test_value
+
+    assert_equal test_value, model.test
+  end
+
+  def test_saving_calls_to_doc_on_non_primitives
+    model = ModelWithUserType.new(:test => NewType.new("stuff"))
+    assert model.save
+
+    document = @col.find_one(model.id)
+    assert_equal ({"var" => "stuff"}), document["test"]
+  end
+
+end
