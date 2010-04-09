@@ -102,6 +102,13 @@ class UpdateTest < DetonatorTestCase
     assert_equal 19.99, record["cost"]
   end
 
+  def test_update_attributes
+    id = @collection.insert(:model => "Canon Rebel XSi")
+    camera = Camera.find(id.to_s)
+
+    assert camera.update_attributes(:model => "Canon Rebel Ti")
+    assert_equal "Canon Rebel Ti", @collection.find_one(id)["model"]
+  end
 end
 
 class DestroyTest < DetonatorTestCase

@@ -1,3 +1,6 @@
 require "detonator/query_builder"
+require "detonator/key"
+require "detonator/active_model_compliance"
+require "detonator/attribute_methods"
 require "detonator/model"
-
+require "detonator/embedded_model"
